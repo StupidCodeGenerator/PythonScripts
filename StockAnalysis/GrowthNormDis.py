@@ -14,18 +14,7 @@ priceData = data[:, 7]
 
 priceData = priceData[~sp.isnan(priceData)]
 
-temp =[]
-for p in priceData:
-	if(p != 0 and p > -0.1 and p < 0.1):
-		temp.append(math.log(p + 1))
-priceData = temp
-
-
-# Fit a normal distribution to the data:
-mu, std = norm.fit(priceData)
-print(std)
-
-
+histogram = np.histogram(priceData, bins=100, normed=True)
 
 # Plot the histogram.
 plt.hist(priceData, bins=50, normed=True, alpha=0.6, color='g')
