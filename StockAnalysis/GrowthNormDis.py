@@ -10,21 +10,28 @@ data = sp.genfromtxt("data/000001.csv", delimiter=",")
 
 freq = {}
 
-priceData = data[:, 7]
+priceDataOri = data[:, 6]
 
-priceData = priceData[~sp.isnan(priceData)]
+priceDataOri = priceDataOri[~sp.isnan(priceDataOri)]
 
-histogram = np.histogram(priceData, bins=100, normed=True)
+growth = []
+
+for i in range(1, len(priceDataOri)):
+	g = math.log(priceDataOri[i]/priceDataOri[i-1])
+	if(g < math.log(1.1) and g > math.log(0.9)):
+		growth.append(g)
+
+histogram = np.histogram(growth, bins=100, normed=True)
 
 # Plot the histogram.
-plt.hist(priceData, bins=50, normed=True, alpha=0.6, color='g')
+plt.hist(growth, bins=50, normed=True, alpha=0.6, color='g')
 
 # Plot the PDF.
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 50)
-p = norm.pdf(x, mu, std)
-plt.plot(x, p, 'k', linewidth=2)
-title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
-plt.title(title)
+#p = norm.pdf(x, mu, std)
+#plt.plot(x, p, 'k', linewidth=2)
+#title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
+#plt.title(title)
 
 plt.show()
