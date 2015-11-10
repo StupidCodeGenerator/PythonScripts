@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 import math
 from scipy.interpolate import UnivariateSpline
-
+import sys
 import os
 s = os.sep
-root = "./data/"
+root = sys.argv[1]
 
 data = []
 
@@ -53,7 +53,7 @@ def GetIncRate(grow):
 	return numOfInc/numOfDec
 
 increaseRates = []
-for i in range(1, 15):
+for i in range(1, 20):
 	print("Calculating sub of " + str(i))
 	sub = GetSubGrowth(growth, i)
 	increaseRates.append(GetIncRate(sub))
