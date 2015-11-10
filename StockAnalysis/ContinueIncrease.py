@@ -26,11 +26,6 @@ for d in data:
 	if not sp.isnan(value):
 		growth.append(value)
 
-#subGrowth3 = []
-#for i in range(3, len(growth)):
-#	if growth[i - 1] > 1 and growth[i - 2] > 1 and growth[i - 3] > 1:
-#		subGrowth3.append(growth[i])
-
 def GetSubGrowth(grow, numOfInc):
 	sub = []
 	for i in range(numOfInc, len(grow)):
@@ -42,7 +37,7 @@ def GetSubGrowth(grow, numOfInc):
 			sub.append(growth[i])
 	return sub
 
-def GetIncRate(grow):
+def GetIncProbAndDecProb(grow):
 	numOfInc = 0
 	numOfDec = 0
 	for g in grow:
@@ -50,14 +45,18 @@ def GetIncRate(grow):
 			numOfInc += 1
 		elif g < 1:
 			numOfDec += 1
-	return numOfInc/numOfDec
+	return numOfInc/len(grow), numOfDec/len(grow)
 
-increaseRates = []
+increaseProb = []
+decreaseProb = []
 for i in range(1, 20):
 	print("Calculating sub of " + str(i))
 	sub = GetSubGrowth(growth, i)
-	increaseRates.append(GetIncRate(sub))
+	param = GetIncProbAndDecProb(sub)
+	increaseProb.append(param[0])
+	decreaseProb.append(param[1])
 
 plt.grid()
-plt.plot(range(1, len(increaseRates) + 1), increaseRates)
+plt.plot(range(1, len(increaseProb) + 1), increaseProb)
+plt.plot(range(1, len(decreaseProb) + 1), decreaseProb)
 plt.show()
