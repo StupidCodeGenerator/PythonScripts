@@ -8,19 +8,13 @@ import math
 import random
 from scipy.interpolate import UnivariateSpline
 
-randomData = []
+growth = norm.rvs(loc=1, scale=0.023, size=1000)
+path = []
+startValue = 10
+for g in growth:
+	startValue = startValue * g
+	path.append(startValue)
 
-for index in range(0,3):
-	value = 10
-	subRandom = []
-	for i in range(0, 1000):
-		r = random.random()
-		r = 1.1 - r/5
-		value = value * r
-		subRandom.append(value)
-	randomData.append(subRandom)
-
-plt.title("StartValue = 10")
-for index in range(0,len(randomData)):
-	plt.plot(range(0, len(randomData[index])), randomData[index])
+plt.plot(range(0, len(path)), path)
+plt.grid()
 plt.show()
