@@ -18,7 +18,6 @@ def GetIncDecNums(data, growthRate):
 		value = data[i-1][4]/data[i-11][4]
 		if not sp.isnan(value) and value > growthRate:
 			currentGrowth = data[i][4]/data[i][1]
-			count += 1
 			if currentGrowth > 1:
 				numOfIncrease += 1
 			elif currentGrowth < 1:
@@ -50,16 +49,24 @@ for i in os.listdir(root):
     if os.path.isfile(os.path.join(root,i)):
     	print("Processing : " + i)
     	d = sp.genfromtxt(os.path.join(root,i), delimiter=",")
-    	for key in d[0]:
+    	dataResult = ProcessData(d)
+    	for key in dataResult[0]:
     		if resultIncrease.has_key(key):
-    			resultIncrease[key] += d[0][key]
+    			resultIncrease[key] += dataResult[0][key]
     		else:
-    			resultIncrease[key] = d[0][key]
-    	for key in d[1]:
+    			resultIncrease[key] = dataResult[0][key]
+    	for key in dataResult[1]:
     		if resultDecrease.has_key(key):
-    			resultDecrease[key] += d[1][key]
+    			resultDecrease[key] += dataResult[1][key]
     		else:
-    			resultDecrease[key] = d[1][key]
+    			resultDecrease[key] = dataResult[1][key]
+	print(resultIncrease)
+	print(resultDecrease)
 
-print(resultIncrease)
-print(resultDecrease)
+xs = sorted(resultIncrease.keys())
+ys = []
+for x in xs:
+	ys.append(resultIncrease[x]/resultDecrease[x])
+
+plt.plot(xs, ys)
+plt.show()
