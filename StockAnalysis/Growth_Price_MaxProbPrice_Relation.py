@@ -17,6 +17,8 @@ root = sys.argv[1]
 # value : Num of raises
 result = {}
 
+totalGrowth = []
+
 # It will return the stock's most possible price
 def MostProbPrice(data):
 	priceData = data[:,4]
@@ -35,6 +37,7 @@ def MostProbPrice(data):
 
 # It will fix the results above
 def ProcessData(data):
+	growthOfThisData = 0
 	mostProbPrice = MostProbPrice(data)
 	if mostProbPrice == 0:
 		return
@@ -43,12 +46,15 @@ def ProcessData(data):
 		if not (sp.isnan(data[i][1]) or sp.isnan(data[i][4])):
 			if data[i][1] > 0:
 				currentGrowth = data[i][4] / data[i][1]
+				growthOfThisData += math.log(currentGrowth)
 				pm = data[i][4] / mostProbPrice
 				key = (pm // 0.05) * 0.05
 				if result.has_key(key):
 					result[key] += math.log(currentGrowth)
 				else:
 					result[key] = math.log(currentGrowth)
+	print("GrowthRate:" + str(growthOfThisData))
+	totalGrowth.append(growthOfThisData)
 
 ########################################################################
 
@@ -64,8 +70,9 @@ resultY = []
 for key in sorted(result):
 	resultX.append(key)
 	resultY.append(result[key])
-
+plt.title("Average GrowthRate = " + str(sum(totalGrowth) / len(totalGrowth)))
+plt.grid()
 plt.plot(resultX, resultY)
 plt.xlabel("CurrentPrice / FitPrice")
-plt.ylabel("NumOfRaise/NumOfFall")
+plt.ylabel("Sigma(ln(GrowthRate))")
 plt.show()
