@@ -15,6 +15,8 @@ for g in growth:
 	startValue = startValue * g
 	path.append(startValue)
 
-plt.plot(range(0, len(path)), path)
+f, (ax1, ax2) = plt.subplots(2,1)
+ax1.hist(growth, bins=30, normed=True, alpha=0.6, color='g')
+ax2.plot(range(0, len(path)), path)
 plt.grid()
 plt.show()
