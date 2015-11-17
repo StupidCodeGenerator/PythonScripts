@@ -12,6 +12,8 @@ import os
 root = sys.argv[1]
 growth = []
 
+zeros = []
+
 for i in os.listdir(root):
     if os.path.isfile(os.path.join(root,i)):
 		print("Processing" + str(i))
@@ -21,7 +23,7 @@ for i in os.listdir(root):
 			if not (sp.isnan(d[4]) or sp.isnan(d[1])):
 				value = d[4]/d[1]
 				if value >= 0.9 and value <= 1.1 and d[5] != 0:
-					growth.append(value)
+					growth.append(math.log(value))
 
 params = norm.fit(growth)
 print(params)
@@ -30,5 +32,9 @@ plt.hist(growth, bins=100, normed=True, alpha=0.6, color='g')
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, params[0], params[1])
+p1 = norm.pdf(x, params[0], 0.015)
+p2 = norm.pdf(x, params[0], 0.02)
 plt.plot(x, p)
+plt.plot(x, p1)
+plt.plot(x, p2)
 plt.show()
