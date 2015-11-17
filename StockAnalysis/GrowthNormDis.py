@@ -16,10 +16,11 @@ for i in os.listdir(root):
     if os.path.isfile(os.path.join(root,i)):
 		print("Processing" + str(i))
 		data = sp.genfromtxt(os.path.join(root,i), delimiter=",")
-		for d in data:
+		for i in range(3, len(data) - 3):
+			d = data[i]
 			if not (sp.isnan(d[4]) or sp.isnan(d[1])):
 				value = d[4]/d[1]
-				if value >= 0.9 and value <= 1.1:
+				if value >= 0.9 and value <= 1.1 and d[5] != 0:
 					growth.append(value)
 
 params = norm.fit(growth)
