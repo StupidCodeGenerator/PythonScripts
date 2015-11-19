@@ -15,6 +15,7 @@ root = sys.argv[1]
 # Final result
 # key : PM // 0.2 * 0.2
 # value : Num of raises
+resultQuantities = {}
 result = {}
 
 totalGrowth = []
@@ -51,8 +52,10 @@ def ProcessData(data):
 				key = (pm // 0.05) * 0.05
 				if result.has_key(key):
 					result[key] += math.log(currentGrowth)
+					resultQuantities[key] += 1
 				else:
 					result[key] = math.log(currentGrowth)
+					resultQuantities[key] = 1
 	print("GrowthRate:" + str(growthOfThisData))
 	totalGrowth.append(growthOfThisData)
 
@@ -69,10 +72,10 @@ resultX = []
 resultY = []
 for key in sorted(result):
 	resultX.append(key)
-	resultY.append(result[key])
+	resultY.append(result[key] / resultQuantities[key])
 plt.title("Average GrowthRate = " + str(sum(totalGrowth) / len(totalGrowth)))
 plt.grid()
 plt.plot(resultX, resultY)
 plt.xlabel("CurrentPrice / FitPrice")
-plt.ylabel("Sigma(ln(GrowthRate))")
+plt.ylabel("Avr(ln(GrowthRate))")
 plt.show()

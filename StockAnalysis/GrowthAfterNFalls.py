@@ -12,8 +12,8 @@ s = os.sep
 root = sys.argv[1]
 
 # final results
-resultRaises = {}
-resultFalls = {}
+resultGrowth = {}
+dataQuantity = {}
 # It will count how many raises before current step
 def ContinueFallOfDays(data, currentStep):
 	count = 0
@@ -27,27 +27,16 @@ def ContinueFallOfDays(data, currentStep):
 
 # It will fix the results above
 def ProcessData(data):
-	# clean data
-	nans = []
-	for i in range(0, len(data)):
-		if sp.isnan(data[i][1]) or sp.isnan(data[i][4]):
-			nans.append(i)
-
-	#data = np.delete(data, nans)
 	data = data[::-1]
 	for i in range(1, len(data)):
-		currentGrowth = data[i][4] / data[i][1]
-		numOfRaisesBefore = ContinueFallOfDays(data, i)
-		if currentGrowth > 1:
-			if resultRaises.has_key(numOfRaisesBefore):
-				resultRaises[numOfRaisesBefore] += 1
-			else:
-				resultRaises[numOfRaisesBefore] = 1
-		elif currentGrowth < 1:
-			if resultFalls.has_key(numOfRaisesBefore):
-				resultFalls[numOfRaisesBefore] += 1
-			else:
-				resultFalls[numOfRaisesBefore] = 1
+		currentGrowth = math.log(data[i][4] / data[i][1])
+		numOfFallBefore = ContinueFallOfDays(data, i)
+		if resultGrowth.has_key(numOfFallBefore):
+			resultGrowth[numOfFallBefore] += currentGrowth
+			dataQuantity[numOfFallBefore] += 1
+		else:
+			resultGrowth[numOfFallBefore] = currentGrowth
+			dataQuantity[numOfFallBefore] = 1
 
 ########################################################################
 
@@ -58,21 +47,13 @@ for i in os.listdir(root):
     	data = sp.genfromtxt(os.path.join(root,i), delimiter=",")
     	ProcessData(data)
 
-for key in copy.copy(resultRaises):
-	if not resultFalls.has_key(key):
-		resultRaises.pop(key)
-for key in copy.copy(resultFalls):
-	if not resultRaises.has_key(key):
-		resultFalls.pop(key)
-
-print(resultRaises)
-print(resultFalls)
-
-xs = sorted(resultRaises.keys())
+xs = sorted(resultGrowth.keys())
 ys = []
 for x in xs:
-	ys.append(resultRaises[x]/resultFalls[x])
+	ys.append(resultGrowth[x] / dataQuantity[x])
 
 plt.plot(xs, ys)
 plt.grid()
+plt.xlabel("NumOfFalls")
+plt.ylabel("Avr(ln(p[n]/p[n-1]))")
 plt.show()
