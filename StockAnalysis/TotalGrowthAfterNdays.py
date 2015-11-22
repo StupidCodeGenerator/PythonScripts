@@ -11,30 +11,21 @@ import copy
 s = os.sep
 root = sys.argv[1]
 
-resultQuantity = {}
-result = {}
+result = []
 # It will count how many raises before current step
-def TotalRaiseOfNDays(data, currentDay, n):
+def TotalGrowthAfterNDays(data, currentDay, n):
 	result = 0
-	for i in range(currentDay - n, currentDay):
+	for i in range(currentDay, currentDay + n):
 		result += math.log(data[i][4]/data[i][1])
 	return result
 
 # It will fix the results above
 def ProcessData(data):
 	data = data[::-1]
-	n = 10
-	for i in range(n, len(data)):
-		currentGrowth = math.log(data[i][4] / data[i][1])
-		totalRaise = TotalRaiseOfNDays(data, i, n)
-		key = currentGrowth // 0.01 * 0.01
-		if not sp.isnan(key):
-			if result.has_key(key):
-				resultQuantity[key] += 1
-				result[key] += totalRaise
-			else:
-				resultQuantity[key] = 1
-				result[key] = totalRaise
+	n = sys.argv[2]
+	for i in range(0, len(data) - n):
+		totalGrowth = TotalGrowthAfterNDays(data, i, n)
+		result.append(totalGrowth)
 
 ########################################################################
 
@@ -45,15 +36,6 @@ for i in os.listdir(root):
     	data = sp.genfromtxt(os.path.join(root,i), delimiter=",")
     	ProcessData(data)
 
-xs = sorted(result.keys())
-ys = []
-ys2 = []
-for x in xs:
-	ys.append(result[x] / resultQuantity[x])
-	ys2.append(resultQuantity[x])
-
-f, (ax1, ax2) = plt.subplots(2,1)
-ax1.plot(xs, ys)
-plt.title("TotalRaiseOfNDays and Data Density")
-ax2.plot(xs, ys2)
+plt.title("TotalRaiseAfter10Days_Distribution")
+plt.hist(result, bins=100, normed=True)
 plt.show()
