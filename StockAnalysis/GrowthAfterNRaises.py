@@ -1,19 +1,21 @@
-﻿from __future__ import division
-import numpy as np
+﻿# Growth After N Raise
+# It will count the growth rate of M days after(contains) the day [i] 
+# when there are N days of raise before [i]
+
+from __future__ import division
 import scipy as sp
 import matplotlib.pyplot as plt
-from scipy.stats import norm
 import math
-from scipy.interpolate import UnivariateSpline
 import sys
 import os
-import copy
-s = os.sep
-root = sys.argv[1]
 
-# final results
-resultGrowth = {}
-dataQuantity = {}
+root = sys.argv[1]   # the data path
+
+resultGrowth = {}    # Growt rate of given N days of raise
+dataQuantity = {}    # the density of data
+
+N = 10               # Count total growth of next N days
+
 # It will count how many raises before current step
 def ContinueRaiseOfDays(data, currentStep):
 	count = 0
@@ -25,11 +27,18 @@ def ContinueRaiseOfDays(data, currentStep):
 			break;
 	return count
 
-# It will fix the results above
+# It will count how many raises before current step
+def TotalGrowthAfterNDays(data, currentDay, n):
+	growth = 0
+	for i in range(currentDay, currentDay + n):
+		growth += math.log(data[i][4]/data[i][1])
+	return growth
+
+# It will modify the results above
 def ProcessData(data):
 	data = data[::-1]
-	for i in range(1, len(data)):
-		currentGrowth = math.log(data[i][4] / data[i][1])
+	for i in range(1, len(data) - N):
+		currentGrowth = TotalGrowthAfterNDays(data, i, N)
 		numOfRaisesBefore = ContinueRaiseOfDays(data, i)
 		if resultGrowth.has_key(numOfRaisesBefore):
 			resultGrowth[numOfRaisesBefore] += currentGrowth
