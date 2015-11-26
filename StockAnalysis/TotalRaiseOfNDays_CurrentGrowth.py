@@ -34,7 +34,7 @@ def ProcessData(data):
 	for i in range(n, len(data) - n):
 		currentGrowth = TotalRaiseAfterNDays(data, i, n)
 		totalRaise = TotalRaiseBeforeNDays(data, i, n)
-		key = totalRaise
+		key = totalRaise // 0.02 * 0.02
 		if not (sp.isnan(key) or key == 0):
 			if result.has_key(key):
 				resultQuantity[key] += 1
@@ -63,4 +63,5 @@ ax1.plot(xs, ys)
 plt.title("Total growth in next 10 days and Data Density")
 plt.xlabel("total raise in last 10 days")
 ax2.plot(xs, ys2)
+plt.grid()
 plt.show()
