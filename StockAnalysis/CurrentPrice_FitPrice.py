@@ -13,7 +13,7 @@ s = os.sep
 root = sys.argv[1]
 
 # Final result
-# key : PM // 0.2 * 0.2
+# key : PM // 0.05 * 0.05
 # value : Num of raises
 resultQuantities = {}
 result = {}
@@ -41,7 +41,7 @@ def TotalRaiseAfterNDays(data, currentDay, n):
 
 # It will fix the results above
 def ProcessData(data):
-	n = 10
+	n = 100
 	growthOfThisData = 0
 	mostProbPrice = MostProbPrice(data)
 	if mostProbPrice == 0:
@@ -76,9 +76,9 @@ resultX = []
 resultY = []
 for key in sorted(result):
 	resultX.append(key)
-	resultY.append(math.exp(result[key] / resultQuantities[key]))
+	resultY.append(result[key] / resultQuantities[key])
 plt.grid()
 plt.plot(resultX, resultY)
-plt.xlabel("Exp(CurrentPrice / FitPrice)")
+plt.xlabel("CurrentPrice / FitPrice")
 plt.ylabel("E(GrowthRate)")
 plt.show()
