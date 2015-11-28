@@ -1,4 +1,7 @@
-﻿from __future__ import division
+﻿# The relationship between (currentPrice/fitPrice) and Avr(MaxPrice in Next N Days)
+# and Avr(MinPrice in Next N Days)
+
+from __future__ import division
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
@@ -12,14 +15,16 @@ import copy
 s = os.sep
 root = sys.argv[1]
 
-# Final result
-# key : PM // 0.05 * 0.05
-# value : Num of raises
-resultQuantities = {}
-result = {}
+# the KeyOfData is (TotalRaise in last N days) // 0.02 * 0.02
+# KeyOfData / how many datas of that key
+numOfDataMax = {}
+numOfDataMin = {}
+# KeyOfData / sum of value
+maxPriceResult = {}
+minPriceResult = {}
 
 # It will return the stock's most possible price
-def MostProbPrice(data):
+def FitPrice(data):
 	priceData = data[:,4]
 	priceData = priceData[~sp.isnan(priceData)]
 	shape, loc, scale = lognorm.fit(priceData,loc = 0)
@@ -39,46 +44,77 @@ def TotalRaiseAfterNDays(data, currentDay, n):
 		result += math.log(data[i][4]/data[i][1])
 	return result
 
+def MaxPriceInNextNDays(data, currentDay, n, fitPrice):
+	result = 0
+	for i in range(currentDay, currentDay + n):
+		value = data[i][4] / fitPrice - data[currentDay][4]/fitPrice
+		if value > result:
+			result = value
+	return result
+
+def MinPriceInNextNDays(data, currentDay, n, fitPrice):
+	result = 65535
+	for i in range(currentDay, currentDay + n):
+		value = data[i][4] / fitPrice - data[currentDay][4]/fitPrice
+		if value < result:
+			result = value
+	return result
+
 # It will fix the results above
 def ProcessData(data):
+	data = data[::-1]
 	n = 100
 	growthOfThisData = 0
-	mostProbPrice = MostProbPrice(data)
-	if mostProbPrice == 0:
+	fitPrice = FitPrice(data)
+	if fitPrice == 0:
 		return
-	print("FitResult : " + str(mostProbPrice))	
+	print("FitResult : " + str(fitPrice))	
 	for i in range(0, len(data) - n):
-		if not (sp.isnan(data[i][1]) or sp.isnan(data[i][4])):
+		if not (sp.isnan(data[i][1]) or sp.isnan(data[i][4]) or sp.isnan(data[i][5])):
 			if data[i][5] > 0:
-				currentGrowth = TotalRaiseAfterNDays(data, i, n)
-				pm = data[i][4] / mostProbPrice
-				key = (pm // 0.05) * 0.05
-				if result.has_key(key):
-					result[key] += currentGrowth
-					resultQuantities[key] += 1
+				maxPrice = MaxPriceInNextNDays(data, i, n, fitPrice)
+				minPrice = MinPriceInNextNDays(data, i, n, fitPrice)
+				currentPrice = data[i][4] / fitPrice
+				key = (currentPrice // 0.05) * 0.05
+				if maxPriceResult.has_key(key):
+					maxPriceResult[key] += maxPrice
+					numOfDataMax[key] += 1
 				else:
-					result[key] = currentGrowth
-					resultQuantities[key] = 1
+					maxPriceResult[key] = maxPrice
+					numOfDataMax[key] = 1
+				if minPriceResult.has_key(key):
+					minPriceResult[key] += minPrice
+					numOfDataMin[key] += 1
+				else:
+					minPriceResult[key] = minPrice
+					numOfDataMin[key] = 1
 
 ########################################################################
 
 # It will iterate all the files
 for i in os.listdir(root):
-    if os.path.isfile(os.path.join(root,i)):
-    	print("Processing : " + i)
-    	data = sp.genfromtxt(os.path.join(root,i), delimiter=",")
-    	try:
-    		ProcessData(data)
-    	except:
-    		print("Fail file : " + i)
+	if os.path.isfile(os.path.join(root,i)):
+		print("Processing : " + i)
+		data = sp.genfromtxt(os.path.join(root,i), delimiter=",")
+		ProcessData(data)
 
-resultX = []
-resultY = []
-for key in sorted(result):
-	resultX.append(key)
-	resultY.append(result[key] / resultQuantities[key])
+print(minPriceResult)
+
+resultXMax = []
+resultYMax = []
+resultXMin = []
+resultYMin = []
+for key in sorted(maxPriceResult):
+	resultXMax.append(key)
+	resultYMax.append(maxPriceResult[key] / numOfDataMax[key])
+for key in sorted(minPriceResult):
+	resultXMin.append(key)
+	resultYMin.append(minPriceResult[key] / numOfDataMin[key])
 plt.grid()
-plt.plot(resultX, resultY)
+fig = plt.figure() 
+ax1 = fig.add_subplot(2,1,1,xlim=(0, 2), ylim=(0, 2))
+ax1.plot(resultXMax, resultYMax)
+ax2 = fig.add_subplot(2,1,2,xlim=(0, 2), ylim=(-2, 0))
+ax2.plot(resultXMin, resultYMin)
 plt.xlabel("CurrentPrice / FitPrice")
-plt.ylabel("E(GrowthRate)")
 plt.show()
