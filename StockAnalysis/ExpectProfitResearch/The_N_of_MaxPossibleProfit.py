@@ -1,0 +1,85 @@
+﻿# The relationship between (currentPrice/fitPrice) and Avr(MaxPrice in Next N Days)
+# and Avr(MinPrice in Next N Days)
+
+from __future__ import division
+import numpy as np
+import scipy as sp
+import matplotlib.pyplot as plt
+from scipy.stats import lognorm
+import math
+import sys
+import os
+s = os.sep
+
+def ReadDatas(dataDirectory):
+	datas = []
+	for fileName in os.listdir(dataDirectory):
+		fullPath = os.path.join(dataDirectory, fileName);
+		if os.path.isfile(fullPath):
+			datas.append(sp.genfromtxt(fullPath, delimiter=","))
+	return datas[::-1] # because the original data is from late to early
+
+# It will return the stock's most possible price
+def FitPrice(data):
+	priceData = data[:,4]
+	priceData = priceData[~sp.isnan(priceData)]
+	shape, loc, scale = lognorm.fit(priceData,loc = 0)
+	x = np.linspace(0, 100, 100)
+	p = lognorm.pdf(x, shape, loc, scale)
+	maxIndex = 0
+	for i in range(0, len(p)):
+		if p[i] >= p[maxIndex]:
+			maxIndex = i
+		else:
+			break; # if the plot goes down, stop searching.
+	return x[maxIndex]
+
+# Return actual price, has noting to do with FitPrice and CurrentPrice
+def PriceAfterNDays(data, currentDay, n):
+	return data[currentDay + n - 1][4]  # Give the last day's price
+
+# This function will write the result to dicts above
+# The "profitResult" is a dict, key is buy-in price, value is profit after n days.
+# The "dataQuantities" is a dict, key is by-in price, value is the quantity of that key in data.
+# So you can use profitResult[key]/dataQuantities[key] to get the expection of profit.
+def ProfitStatInNDays(data, n, profitResult, dataQuantities):
+	fitPrice = FitPrice(data)
+	if fitPrice == 0:
+		return
+	for i in range(0, len(data) - n):
+		if not (sp.isnan(data[i][1]) or sp.isnan(data[i][4]) or sp.isnan(data[i][5])):
+			if data[i][5] > 0: # Avoid the days that stops dealing
+				maxPossiblePriceAfterNDays = ExpectedPriceAfterNDays(data, i, n) / fitPrice
+				currentPrice = data[i][4] / fitPrice  
+				key = (currentPrice // 0.05) * 0.05                 # granulate current price
+				value = maxPossiblePriceAfterNDays - currentPrice   # expect growth
+				if result.has_key(key):
+					result[key] += value
+					dataQuantities[key] += 1
+				else:
+					result[key] = value
+					dataQuantities[key] = 1
+
+
+# Find N that makes best profit possible
+def MaxProfit(n):
+	dataQuantities = {}
+	result = {}
+	# It will iterate all the files
+	for i in os.listdir(root):
+		if os.path.isfile(os.path.join(root,i)):
+			data = sp.genfromtxt(os.path.join(root,i), delimiter=",")
+			ProcessData(data, n)
+	maxProfit = -65535
+	for key in result:
+		value = result[key] / dataQuantities[key]
+		if value > maxProfit:
+			maxProfit = value
+	return maxProfit
+
+
+# START
+########################################################################
+dataDirectory = sys.argv[1]
+datas = ReadDatas(dataDirectory)
+print(datas)

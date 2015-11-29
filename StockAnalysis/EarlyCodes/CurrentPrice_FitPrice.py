@@ -60,6 +60,28 @@ def MinPriceInNextNDays(data, currentDay, n, fitPrice):
 			result = value
 	return result
 
+# if the max price appear first, It will return a raise.
+# if the min price appear first, It will return a fall.
+def ComprehensiveRaiseFallExpect(data, currentDay, n, fitPrice):
+	maxValue = 0
+	minValue = 65535
+	maxDay = 0
+	minDay = 0
+	for i in range(currentDay, currentDay + n):
+		value = value = data[i][4] / fitPrice - data[currentDay][4]/fitPrice
+		if value > maxValue:
+			maxDay = i
+			maxValue = value
+		if value < minValue:
+			minDay = i
+			minValue = value
+	if minDay < maxDay && minDay != 0:
+		return maxValue
+	elif maxDay < minDay && maxDay != 0:
+		return minValue
+	else :
+		return 0
+
 # It will fix the results above
 def ProcessData(data):
 	data = data[::-1]
