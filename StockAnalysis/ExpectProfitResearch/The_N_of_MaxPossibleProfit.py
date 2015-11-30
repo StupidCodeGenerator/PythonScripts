@@ -15,11 +15,13 @@ def ReadDatas(dataDirectory):
 	datas = []
 	for fileName in os.listdir(dataDirectory):
 		fullPath = os.path.join(dataDirectory, fileName);
+		print("LOADING : " + fullPath)
 		if os.path.isfile(fullPath):
 			datas.append(sp.genfromtxt(fullPath, delimiter=","))
 	return datas[::-1] # because the original data is from late to early
 
-# It will return the stock's most possible price
+# It will try to fit the price in lognorm.
+# then return the price that has max probability
 def FitPrice(data):
 	priceData = data[:,4]
 	priceData = priceData[~sp.isnan(priceData)]
@@ -39,6 +41,7 @@ def PriceAfterNDays(data, currentDay, n):
 	return data[currentDay + n - 1][4]  # Give the last day's price
 
 # This function will write the result to dicts above
+# These two parameters below will save the result
 # The "profitResult" is a dict, key is buy-in price, value is profit after n days.
 # The "dataQuantities" is a dict, key is by-in price, value is the quantity of that key in data.
 # So you can use profitResult[key]/dataQuantities[key] to get the expection of profit.
@@ -49,37 +52,51 @@ def ProfitStatInNDays(data, n, profitResult, dataQuantities):
 	for i in range(0, len(data) - n):
 		if not (sp.isnan(data[i][1]) or sp.isnan(data[i][4]) or sp.isnan(data[i][5])):
 			if data[i][5] > 0: # Avoid the days that stops dealing
-				maxPossiblePriceAfterNDays = ExpectedPriceAfterNDays(data, i, n) / fitPrice
+				maxPossiblePriceAfterNDays = PriceAfterNDays(data, i, n) / fitPrice
 				currentPrice = data[i][4] / fitPrice  
 				key = (currentPrice // 0.05) * 0.05                 # granulate current price
 				value = maxPossiblePriceAfterNDays - currentPrice   # expect growth
-				if result.has_key(key):
-					result[key] += value
+				if profitResult.has_key(key):
+					profitResult[key] += value
 					dataQuantities[key] += 1
 				else:
-					result[key] = value
+					profitResult[key] = value
 					dataQuantities[key] = 1
 
 
-# Find N that makes best profit possible
-def MaxProfit(n):
+# It will return a dict, the key is buy-in price, the value is the expected profit
+def ProfitCurve(n, datas):
 	dataQuantities = {}
-	result = {}
-	# It will iterate all the files
-	for i in os.listdir(root):
-		if os.path.isfile(os.path.join(root,i)):
-			data = sp.genfromtxt(os.path.join(root,i), delimiter=",")
-			ProcessData(data, n)
-	maxProfit = -65535
-	for key in result:
-		value = result[key] / dataQuantities[key]
-		if value > maxProfit:
-			maxProfit = value
-	return maxProfit
+	profitResult = {}
+	for data in datas:
+		ProfitStatInNDays(data, n, profitResult, dataQuantities)
+	output = {}
+	for key in profitResult:
+		output[key] = profitResult[key] / dataQuantities[key]
+	return output
 
 
 # START
 ########################################################################
 dataDirectory = sys.argv[1]
+resultDirectory = sys.argv[2]
+
+exist = []
+for i in os.listdir(resultDirectory):
+	if os.path.isfile(os.path.join(resultDirectory,i)):
+		exist.append(i)
+
 datas = ReadDatas(dataDirectory)
-print(datas)
+for n in range(0, 200):
+	fileName = (str(n) + ".csv")
+	if fileName in exist:
+		print("FileExist : " + fileName)
+		continue	
+	print("Calculating N = " + str(n))
+	profitCurve = ProfitCurve(n, datas)
+	print("Calculation Over, Writting file")
+	resultPath = os.path.join(resultDirectory, fileName)
+	file_object = open(resultPath, 'a')
+	for key in profitCurve:
+		file_object.write(str(key) + "," + str(profitCurve[key]) + "\r\n")
+	print("save to file : " + resultPath)
