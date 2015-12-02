@@ -23,5 +23,8 @@ im = plt.imshow(data, extent = (0,5,0,5))
 plt.colorbar(im)
 ax=plt.gca()
 ax.set_yticks(np.linspace(0,5,20))
+ax.set_yticklabels(("0","0.25","0.5","0.75","1",\
+	"1.25", "1.5", "1.75", "2", "2.25", "2.5", "2.75", "3", \
+	"3.25", "3.5", "3.75", "4", "4.25", "4.5", "4.75", "5"))
   
 plt.show()  
