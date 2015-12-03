@@ -20,39 +20,37 @@ s = os.sep
 # then use (price / 0.05) to find out the index.
 # The length will be 5/0.05 = 100 indecies
 # To avoid null values, init the 2d array with 0 first
-stockData = [] # Element will be array of each N
 
 def LoadData(filePath):
 	result = []
-	for i in range(0, 100):
+	for i in range(0, 150):
 		result.append(0)
 	print("LOADING : " + filePath)
 	csvData = sp.genfromtxt(filePath, delimiter = ",")
 	for row in csvData:
-		index = int(row[0]//0.05)
-		if index > 0 and index < len(result):
+		# int(3.0) == 2 because the int() is losting data
+		index = int(row[0]/0.05 + 0.1) 
+		if index >= 0 and index < len(result):
 			result[index] = row[1]
 	return result
 
 # START
 # -----------------------------------------------------------------------------
 dataDirectory = sys.argv[1]
-data = []
+data = {}
 
 for i in os.listdir(dataDirectory):
+	key = int(i.split(".")[0])   # get *** from ***.csv
 	fullPath = os.path.join(dataDirectory, i)
 	if os.path.isfile(fullPath):
-		data.append(LoadData(fullPath))
+		data[key] = LoadData(fullPath)
 
+dataArray = []
+for key in sorted(data):
+	dataArray.append(data[key])
 
-# Below this line is codes from internet
-# -----------------------------------------------------------------------------
-im = plt.imshow(data)
+im = plt.imshow(dataArray, vmin = -1, vmax = 1)
 plt.colorbar(im)
-#ax=plt.gca()
-#ax.set_yticks(np.linspace(0,5,20))
-#ax.set_yticklabels(("0","0.25","0.5","0.75","1",\
-#	"1.25", "1.5", "1.75", "2", "2.25", "2.5", "2.75", "3", \
-#	"3.25", "3.5", "3.75", "4", "4.25", "4.5", "4.75", "5"))
-#  
+ax=plt.gca()
+ax.set_xticklabels(("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"))
 plt.show()  
