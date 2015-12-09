@@ -1,71 +1,61 @@
-﻿#
-# 1. Use MongodDB as database. Using database is always good. 
-#    If I don't use these days, I will use that later. 
-#    So I just use that by learning
-# 2. Download from yahoo finace.
-# 3. DataStructure is
-#    { Date(key), Open, High, Low, Close, Valume, AdjClose }.
-#    And the database name is StockData.StockName
-#
-
-from __future__ import division
+﻿from __future__ import division
 import numpy as np
 import scipy as sp
 import urllib2
-from pymongo import MongoClient
-from io import StringIO
+import sys
+import os
+
+# Load from directory/base.csv and store by rows.
+# Each row stores one stock info
+# Need to be loaded at the begining of the program starts.
+stockBase = []
+
+# Load content in directory/base.csv and store into stockBase
+def LoadStockBase(directory):
+	print("LoadingBase...")
+	filePath = os.path.join(directory, "base.csv")
+	baseString = ""
+	with open(filePath, "r") as file:
+		baseString = file.read()
+		print(baseString)
+	if baseString:
+		stockBase = sp.genfromtxt(filePath, delimiter=",")
 
 # Download from url and return the result as a file pointer
-def DownloadUrl(url):
+def DownloadStock(startDate, endDate, code, directory):
+	start_ymd = startDate.split("-")
+	end_ymd = endDate.split("-")
+	# the month should -1 because the yahoo api is like that ...
+	start_ymd[1] = str(int(start_ymd[1]) - 1)
+	end_ymd[1] = str(int(end_ymd[1]) - 1)
 	result = ""
-	print("Downloading : " + url)
-	f = urllib2.urlopen(url) 
-	return f
-
-# It will translate 2015/1/1 into 20150101 as a number
-# because it's clearer
-def DateTranslate(timeString):
+	print("Try sz")
 	try:
-		yearMonthDay = timeString.split("/")
-		year = int(yearMonthDay[0])
-		month = int(yearMonthDay[1])
-		day = int(yearMonthDay[2])
-		return year * 10000 + month * 100 + day
+		str_url = "http://table.finance.yahoo.com/table.csv?s="+code+\
+			".sz&d="+end_ymd[1]+"&e="+end_ymd[2]+"&f="+end_ymd[0]+\
+			"&g=d&a="+start_ymd[1]+"&b="+start_ymd[2]+"&c="+start_ymd[0]+\
+			"&ignore=.csv"
+		print("Downloading : " + str_url)
+		result = urllib2.urlopen(str_url).read()
 	except:
-		return -1
+		print("Try ss")
+		str_url = "http://table.finance.yahoo.com/table.csv?s="+code+\
+			".ss&d="+end_ymd[1]+"&e="+end_ymd[2]+"&f="+end_ymd[0]+\
+			"&g=d&a="+start_ymd[1]+"&b="+start_ymd[2]+"&c="+start_ymd[0]+\
+			"&ignore=.csv"
+		print("Downloading : " + str_url)
+		result = urllib2.urlopen(str_url).read()
+	if result:
+		# I don't know why [1:-1:-1] dosen't work
+		rows = result.split("\n")[1:-1]
+		rows = rows[::-1]
+		print(rows)
+		with open(str(code) + ".csv", "a") as file:
+			for row in rows:
+				file.write(row + "\n");
+		print("File write to : " + str(file))
 
-# The string is actually a csv. This function will split that csv
-# Then save each line into mongodb
-def SaveDataToMongo(filePointerOfUrl, collectionName):
-	client = MongoClient()
-	db = client.StockData
-	collection = db[collectionName]
-	csvData = sp.genfromtxt(filePointerOfUrl, delimiter=",")
-	posts = []
-	for row in csvData:
-		if(sp.isnan(row[1])):  # the open price is always number
-			continue
-		post = {}
-		post["date"] = DateTranslate(row[0])
-		post["open"] = row[1]
-		post["high"] = row[2]
-		post["low"] = row[3]
-		post["close"] = row[4]
-		post["valume"] = row[5]
-		post["adjClose"] = row[6]
-		posts.append(post)
-	collection.insert_many(posts)
-
-# START
 # ---------------------------------------------------
+# START
 
-# the test code
-str_url = "http://table.finance.yahoo.com/table.csv?s="+"000001"+\
-		".sz&d=10&e=27&f=2015&g=d&a=10&b=20&c=2015&ignore=.csv"
-result = DownloadUrl(str_url)
-SaveDataToMongo(result, "s000001")
-
-# check data, find out missing dates of data.
-# The simplest way to do that is find the latest date in base.
-# because the data will always continuly saved.
-# To do that, find Max value of date in each collection
+DownloadStock("2015-10-01", "2015-10-30", "000001", "./")
