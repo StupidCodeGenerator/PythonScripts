@@ -5,10 +5,16 @@ import urllib2
 import sys
 import os
 
+BASE_INDEX = {"LAST_DATE":0 , "CURRENT_PRICE":1}
+STOCK_DATA_INDEX = {"CODE":0, "OPEN":1, "HIGH":2, "LOW":3 "CLOSE":4 \
+					"VOLUME":5, "ADJ_CLOSE":6}
+
 # Load from directory/base.csv and store by rows.
 # Each row stores one stock info
 # Need to be loaded at the begining of the program starts.
-stockBase = []
+# The key is the stock code
+# The value will be a array of CurrentPrice and LastDate
+stockBase = {}
 
 # Load content in directory/base.csv and store into stockBase
 def LoadStockBase(directory):
@@ -19,7 +25,13 @@ def LoadStockBase(directory):
 		baseString = file.read()
 		print(baseString)
 	if baseString:
-		stockBase = sp.genfromtxt(filePath, delimiter=",")
+		stockBaseArray = sp.genfromtxt(filePath, delimiter=",")
+		for stockData in stockBaseArray:
+			key = stockData[0]
+			stockBase[key] = stockBaseArray[1:]
+
+# It will update the stock info of the given key in stockBase.
+def UpdateStockBase(stockCode, lastDate, currentPrice):
 
 # Download from url and return the result as a file pointer
 def DownloadStock(startDate, endDate, code, directory):
@@ -54,6 +66,7 @@ def DownloadStock(startDate, endDate, code, directory):
 			for row in rows:
 				file.write(row + "\n");
 		print("File write to : " + str(file))
+		currentPrice = rows[len(rows) - 1][6]
 
 # ---------------------------------------------------
 # START
