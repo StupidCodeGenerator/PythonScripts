@@ -59,7 +59,13 @@ def SaveDataToMongo(filePointerOfUrl, collectionName):
 # START
 # ---------------------------------------------------
 
+# the test code
 str_url = "http://table.finance.yahoo.com/table.csv?s="+"000001"+\
 		".sz&d=10&e=27&f=2015&g=d&a=10&b=20&c=2015&ignore=.csv"
 result = DownloadUrl(str_url)
 SaveDataToMongo(result, "s000001")
+
+# check data, find out missing dates of data.
+# The simplest way to do that is find the latest date in base.
+# because the data will always continuly saved.
+# To do that, find Max value of date in each collection
