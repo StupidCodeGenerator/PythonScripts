@@ -39,9 +39,10 @@ def UpdateStockBase(stockCode, lastDate, currentPrice, stockBase, directory):
 	stockBase[stockCode] = stockArray
 	filePath = os.path.join(directory, "base.csv")
 	print("Updating base : " + filePath)
-	with open(filePath, "w") as file:
+	print(stockBase)
+	with open(filePath, "wb") as file:
 		for key in stockBase:
-			string = str(stockCode) +","+ str(lastDate) +","+ str(currentPrice)
+			string = str(key) +","+ str(lastDate) +","+ str(currentPrice) + "\n"
 			file.write(string)
 
 # Download from url and return the result as a file pointer
