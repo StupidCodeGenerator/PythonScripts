@@ -10,6 +10,15 @@ import sys
 import os
 import datetime
 
+def GetAllStockCodes():
+	result = []
+	prefixs = ["600", "601", "603", "900", "730", "700", "080", "000", "002", "300"]
+	for prefix in prefixs:
+		for i in range(0,1000):
+			postFix = str(i).zfill(3)
+			result.append(prefix + postFix)
+	return result;
+
 # Load content in directory/base.csv
 def LoadStockBase(directory):
 	stockBase = {}
@@ -104,7 +113,7 @@ print("Today : " + today)
 
 # 2. Try to download all stocks. before that, check if it exists in base
 #    If so, download missing dates
-for i in range(1, 999999):
+for i in GetAllStockCodes():
 	stockCode = str(i).zfill(6)
 	if stockBase.has_key(stockCode):
 		lastDate = stockBase[stockCode][0]
