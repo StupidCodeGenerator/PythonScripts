@@ -21,16 +21,17 @@ def LoadStockBase(directory):
 			baseString = file.read()
 			print(baseString)
 	except:
-		os.mkdir(directory)
 		with open(filePath, "a") as file:
 			file.write("")
 			print("Create new base file")
 	if baseString:
 		baseLines = baseString.split("\n")
 		for line in baseLines:
-			colums = line.split(",")
-			key = colums[0]
-			stockBase[key] = colums[1:]
+			if(line != ""):
+				colums = line.split(",")
+				key = colums[0]
+				stockBase[key] = colums[1:]
+	print(stockBase)
 	return stockBase
 
 # It will update the stock info of the given key in stockBase.
@@ -39,19 +40,23 @@ def UpdateStockBase(stockCode, lastDate, currentPrice, stockBase, directory):
 	stockBase[stockCode] = stockArray
 	filePath = os.path.join(directory, "base.csv")
 	print("Updating base : " + filePath)
-	print(stockBase)
 	with open(filePath, "wb") as file:
 		for key in stockBase:
-			string = str(key) +","+ str(lastDate) +","+ str(currentPrice) + "\n"
+			string = str(key) +","+ str(stockBase[key][0]) +","+ \
+									str(stockBase[key][1]) + "\n"
 			file.write(string)
 
-# Download from url and return the result as a file pointer
 def DownloadStock(startDate, endDate, code, directory, stockBase):
 	start_ymd = startDate.split("-")
 	end_ymd = endDate.split("-")
 	# the month should -1 because the yahoo api is like that ...
 	start_ymd[1] = str(int(start_ymd[1]) - 1).zfill(2)
 	end_ymd[1] = str(int(end_ymd[1]) - 1).zfill(2)
+	# if last day is just today, interrupt
+	if(start_ymd[0] == end_ymd[0] and start_ymd[1] == end_ymd[1] and \
+								int(end_ymd[2]) - int(start_ymd[2]) <= 1):
+		print(code + " is up-to-date")
+		return;
 	result = ""
 	print("Try sz")
 	try:
