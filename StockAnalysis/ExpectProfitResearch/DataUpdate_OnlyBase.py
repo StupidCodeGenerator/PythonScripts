@@ -109,7 +109,12 @@ stockBase = LoadStockBase(sys.argv[1])
 today = str(datetime.date.today())
 print("Today : " + today)
 
+count = []
+count.append(0)
+
 for stockCode in stockBase.keys():
+	count[0] += 1
+	print("["+str(count[0])+"/"+str(len(stockBase))+"]")
 	lastDate = stockBase[stockCode][0]
 	print("LastDate : " + lastDate)
 	DownloadStock(lastDate, today, stockCode, sys.argv[1], stockBase)
