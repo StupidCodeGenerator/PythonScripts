@@ -9,6 +9,7 @@ import urllib2
 import sys
 import os
 import datetime
+import traceback
 
 def GetAllStockCodes():
 	result = []
@@ -75,7 +76,7 @@ def DownloadStock(startDate, endDate, code, directory, stockBase):
 		print("Downloading : " + str_url)
 		result = urllib2.urlopen(str_url).read()
 	except:
-		print("Fail...")
+		print(traceback.format_exc())
 	if not result:
 		try:
 			print("Try ss")
@@ -86,7 +87,7 @@ def DownloadStock(startDate, endDate, code, directory, stockBase):
 			print("Downloading : " + str_url)
 			result = urllib2.urlopen(str_url).read()
 		except:
-			print("Fail...")
+			print(traceback.format_exc())
 	if result:
 		# I don't know why [1:-1:-1] dosen't work
 		rows = result.split("\n")[1:-1]
