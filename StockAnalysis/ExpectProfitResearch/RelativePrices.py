@@ -25,6 +25,13 @@ def FitPrice(data):
 			break; # if the plot goes down, stop searching.
 	return x[maxIndex]
 
+def TotalValue(data):
+	valueData = data[:,5]
+	result = 0
+	for v in valueData:
+		result += v
+	return result
+
 allStockDatas = {}
 dataDirectory = sys.argv[1]
 for i in os.listdir(dataDirectory):
@@ -41,7 +48,8 @@ for stockCode in allStockDatas:
 	currentPrice = stockData[len(stockData) - 1][6] # the last price
 	fitPrice = FitPrice(stockData)
 	relativePrice = currentPrice / fitPrice
-	resultRow = str(relativePrice) + "," + str(fitPrice) + "," + str(stockCode) 
+	resultRow = str(relativePrice) + "," + str(fitPrice) + "," + \
+	str(stockCode) + "," + str(TotalValue(stockData))
 	print(resultRow)
 	result.append(resultRow)
 
