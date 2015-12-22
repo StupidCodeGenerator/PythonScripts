@@ -11,7 +11,7 @@ import datetime
 
 def GetAllStockCodes():
 	result = []
-	prefixs = ["600", "601", "603", "900", "730", "700", "080", "000", "002", "300"]
+	prefixs = ["600", "601", "603", "900", "730", "700", "080", "000", "002", "300", "001"]
 	for prefix in prefixs:
 		for i in range(0,1000):
 			postFix = str(i).zfill(3)
