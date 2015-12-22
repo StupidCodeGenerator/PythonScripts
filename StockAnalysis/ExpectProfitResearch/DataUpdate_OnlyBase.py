@@ -11,6 +11,9 @@ import os
 import datetime
 import traceback
 
+MARKET_WORD = {"600":"ss", "601":"ss", "900":"ss", "730":"ss", "700":"ss", \
+				"080":"sz", "000":"sz", "002":"sz", "300":"sz"}
+
 def GetAllStockCodes():
 	result = []
 	prefixs = ["600", "601", "603", "900", "730", "700", "080", "000", "002", "300"]
@@ -67,27 +70,16 @@ def DownloadStock(startDate, endDate, code, directory, stockBase):
 		print(code + " is up-to-date")
 		return;
 	result = ""
-	print("Try sz")
+	marketWorkd = MARKET_WORD[code[0:3]]
 	try:
 		str_url = "http://table.finance.yahoo.com/table.csv?s="+code+\
-			".sz&d="+end_ymd[1]+"&e="+end_ymd[2]+"&f="+end_ymd[0]+\
+			"."+marketWorkd+"&d="+end_ymd[1]+"&e="+end_ymd[2]+"&f="+end_ymd[0]+\
 			"&g=d&a="+start_ymd[1]+"&b="+start_ymd[2]+"&c="+start_ymd[0]+\
 			"&ignore=.csv"
 		print("Downloading : " + str_url)
 		result = urllib2.urlopen(str_url).read()
 	except:
 		print(traceback.format_exc())
-	if not result:
-		try:
-			print("Try ss")
-			str_url = "http://table.finance.yahoo.com/table.csv?s="+code+\
-				".ss&d="+end_ymd[1]+"&e="+end_ymd[2]+"&f="+end_ymd[0]+\
-				"&g=d&a="+start_ymd[1]+"&b="+start_ymd[2]+"&c="+start_ymd[0]+\
-				"&ignore=.csv"
-			print("Downloading : " + str_url)
-			result = urllib2.urlopen(str_url).read()
-		except:
-			print(traceback.format_exc())
 	if result:
 		# I don't know why [1:-1:-1] dosen't work
 		rows = result.split("\n")[1:-1]
