@@ -11,14 +11,13 @@ import os
 import datetime
 import traceback
 
-MARKET_WORD = {"600":"ss", "601":"ss", "900":"ss", "730":"ss", \
-				"700":"ss", "603":"ss",\
-				"080":"sz", "000":"sz", "002":"sz", "300":"sz"}
+MARKET_WORD = {"600":"ss", "601":"ss", "900":"ss", "730":"ss", "700":"ss", \
+				"603":"ss", "080":"sz", "000":"sz", "002":"sz", "300":"sz", \
+				"001":"sz"}
 
 def GetAllStockCodes():
 	result = []
-	prefixs = ["600", "601", "603", "900", "730", "700", "080", \
-				"000", "002", "300"]
+	prefixs = ["600", "601", "603", "900", "730", "700", "080", "000", "002", "300", "001"]
 	for prefix in prefixs:
 		for i in range(0,1000):
 			postFix = str(i).zfill(3)
