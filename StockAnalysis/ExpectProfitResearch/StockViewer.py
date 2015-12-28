@@ -22,22 +22,44 @@ def FitPrice(data):
 			break; # if the plot goes down, stop searching.
 	return x[maxIndex]
 
+def HighLow(data):
+	priceData = data[:,6]
+	currentPrice = priceData[len(priceData) - 1]
+	high = 0
+	low = 0
+	for p in priceData:
+		if p >= currentPrice:
+			high += 1
+		else:
+			low += 1
+	if low == 0:
+		return 0
+	else:
+		result = high / low
+		if result > 3:
+			result = 3			
+		return result;
+
 fileName = sys.argv[1]
 csvData = sp.genfromtxt(fileName, delimiter = ",")
 
-FitPrice_History = []
+HighLows = []
 for i in range(0, len(csvData)):
-	print("Calculating fitPrice of " + str(i) + "/" + str(len(csvData)))
+	print("Calculating High/Low of " + str(i) + "/" + str(len(csvData)))
 	subData = csvData[:i + 1]
 	print("Sub length = " + str(len(subData)))
-	fitPrice = FitPrice(subData)
-	print("Result["+str(i)+"] = " + str(fitPrice))
-	FitPrice_History.append(fitPrice)
+	highLow = HighLow(subData)
+	print("Result["+str(i)+"] = " + str(highLow))
+	HighLows.append(highLow)
 
 y = csvData[:,6]
-x = range(0, len(csvData))
+x = range(0, len(y))
 
-plt.plot(x, y, label = "Price")
-plt.plot(range(0, len(FitPrice_History)),FitPrice_History, label = "Fit")
-plt.legend()
+line = [1 for col in range(len(HighLows))]
+
+p1 = plt.subplot(211)
+p2 = plt.subplot(212)
+p1.plot(x, y)
+p2.plot(range(0, len(HighLows)),HighLows)
+p2.plot(range(0, len(HighLows)),line)
 plt.show()
