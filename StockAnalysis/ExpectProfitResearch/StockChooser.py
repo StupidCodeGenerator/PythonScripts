@@ -3,7 +3,8 @@ import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
 from scipy.stats import lognorm
-import matplotlib as mpl  
+import matplotlib as mpl
+import math
 import sys
 import os
 s = os.sep
@@ -21,10 +22,7 @@ def HighLow(data):
 	if low == 0:
 		return 0
 	else:
-		result = high / low
-		if result > 3:
-			result = 3			
-		return result;
+		return math.log(result);
 
 # It will return the stock's most possible price
 def FitPrice(data):
@@ -70,7 +68,7 @@ for stockCode in allStockDatas:
 	print(resultRow)
 	result.append(resultRow)
 
-resultPath = os.path.join(sys.argv[2], "HighLow.csv");
+resultPath = os.path.join(sys.argv[2], "Result.csv");
 
 with open(resultPath, "a") as file:
 	for row in result:
