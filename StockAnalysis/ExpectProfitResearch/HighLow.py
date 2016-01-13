@@ -4,6 +4,7 @@ import scipy as sp
 import matplotlib.pyplot as plt
 from scipy.stats import lognorm
 import matplotlib as mpl  
+import math
 import sys
 import os
 s = os.sep
@@ -21,9 +22,7 @@ def HighLow(data):
 	if low == 0:
 		return 0
 	else:
-		result = high / low
-		if result > 3:
-			result = 3			
+		result = math.log(high / low)
 		return result;
 
 def TotalValue(data):

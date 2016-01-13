@@ -22,7 +22,7 @@ def HighLow(data):
 	if low == 0:
 		return 0
 	else:
-		return math.log(result);
+		return math.log(high/low);
 
 # It will return the stock's most possible price
 def FitPrice(data):
