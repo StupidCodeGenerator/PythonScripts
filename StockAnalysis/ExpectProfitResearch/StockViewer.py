@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import math
 from scipy.stats import lognorm
 import matplotlib as mpl  
+import math
 import sys
 import os
 s = os.sep
