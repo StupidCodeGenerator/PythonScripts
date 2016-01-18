@@ -22,7 +22,7 @@ def HighLow(data):
 	if low == 0:
 		return 0
 	else:
-		return math.log(result);
+		return math.log(high/low);
 
 # It will return the stock's most possible price
 def FitPrice(data):
@@ -59,16 +59,22 @@ for i in os.listdir(dataDirectory):
 result = []
 for stockCode in allStockDatas:
 	stockData = allStockDatas[stockCode]
-	currentPrice = stockData[len(stockData) - 1][6] # the last price
-	highLow = HighLow(stockData)
-	fitPrice = FitPrice(stockData)
-	relativePrice = currentPrice / fitPrice;
-	resultRow = str(highLow) + "," + str(relativePrice) + "," +\
-	str(fitPrice) + "," + str(stockCode) + "," + str(TotalValue(stockData))
-	print(resultRow)
-	result.append(resultRow)
-
+	if len(stockData) > 3000:
+		currentPrice = stockData[len(stockData) - 1][6] # the last price
+		highLow = HighLow(stockData)
+		fitPrice = FitPrice(stockData)
+		relativePrice = currentPrice / fitPrice;
+		resultRow = str(highLow) + "," + str(relativePrice) + "," +\
+		str(fitPrice) + "," + str(stockCode) + "," + \
+		str(TotalValue(stockData)) + "," + str(len(stockData))
+		print(resultRow)
+		result.append(resultRow)
+	else :
+		print("Too few data");
 resultPath = os.path.join(sys.argv[2], "Result.csv");
+
+with open(resultPath, "w") as file:
+	file.write("")
 
 with open(resultPath, "a") as file:
 	for row in result:
