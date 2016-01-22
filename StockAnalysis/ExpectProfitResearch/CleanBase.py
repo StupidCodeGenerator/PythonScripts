@@ -114,12 +114,40 @@ def DownloadStock(startDate, endDate, code, directory, stockBase):
 # START
 
 stockBase = LoadStockBase(sys.argv[1])
-
 cleanCodes = GetStockCodesToClean();
 
+# Clean the file that less than 1K lines
+filelist = os.listdir(sys.argv[1])
+for file in filelist:
+	filepath = os.path.join(sys.argv[1], file)
+	if(file == "base.csv"):
+		continue
+	else:
+		filelen = len(open(filepath).readlines())
+		if(filelen < 4500):
+			print("less than 4.5k : " + filepath + ","+str(filelen))
+			cleanCodes.append(file.split(".")[0])
+
+# Clean the base list if the file dont exist
+for stockCode in stockBase:
+	fileName = stockCode + ".csv"
+	if not fileName in filelist:
+		cleanCodes.append(stockCode)
+		print("Deleted stock : " + stockCode)
+
+# Clean the code that dont need
 for stockCode in cleanCodes:
 	if stockBase.has_key(stockCode):
 		del(stockBase[stockCode])
+		filename = stockCode + ".csv"
+		fullpath = os.path.join(sys.argv[1],filename)
+		try:
+			os.remove(fullpath)
+		except:
+			print("File deleted :" + fullpath)
+		print("Remove file : " + fullpath)
+
+
 
 with open(os.path.join(sys.argv[1], "base.csv"), "wb") as file:
 	for key in stockBase:
