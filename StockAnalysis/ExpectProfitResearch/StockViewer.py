@@ -2,6 +2,7 @@
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
+import math
 from scipy.stats import lognorm
 import matplotlib as mpl  
 import math
@@ -36,8 +37,7 @@ def HighLow(data):
 	if low == 0:
 		return 0
 	else:
-		result = math.log(high / low)
-		return result;
+		return math.log(high/low);
 
 fileName = sys.argv[1]
 csvData = sp.genfromtxt(fileName, delimiter = ",")
