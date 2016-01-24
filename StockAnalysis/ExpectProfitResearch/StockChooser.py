@@ -67,8 +67,11 @@ for stockCode in allStockDatas:
 		resultRow = str(highLow) + "," + str(relativePrice) + "," +\
 		str(fitPrice) + "," + str(stockCode) + "," + \
 		str(TotalValue(stockData)) + "," + str(len(stockData))
-		print(resultRow)
-		result.append(resultRow)
+		if(highLow > 0 and relativePrice < 1):
+			print("*"+ resultRow)
+			result.append(resultRow) 
+		else :
+			print(resultRow)
 	else :
 		print("Too few data");
 resultPath = os.path.join(sys.argv[2], "Result.csv");
